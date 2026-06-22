@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, BookOpen } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
 const links = [
   { href: "/",          label: "Home" },
@@ -68,6 +69,25 @@ export default function Navbar() {
             >
               <BookOpen size={14} /> GitHub
             </a>
+
+            <div className="flex items-center gap-2">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="btn-outline text-sm py-2 px-4 cursor-pointer">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="btn-primary text-sm py-2 px-4 rounded-xl cursor-pointer">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </div>
+
             <button
               className="lg:hidden p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-white/5 transition-colors"
               onClick={() => setOpen(!open)}
@@ -98,6 +118,27 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-white/10">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="w-full btn-outline text-sm py-2 px-4 justify-center cursor-pointer">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="w-full btn-primary text-sm py-2 px-4 rounded-xl justify-center cursor-pointer">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl">
+                  <UserButton afterSignOutUrl="/" />
+                  <span className="text-sm font-medium text-ink-muted">My Account</span>
+                </div>
+              </SignedIn>
+            </div>
+
             <a
               href="https://github.com/bbit046j2024-bot/campus-dive-v2"
               target="_blank"
