@@ -1,0 +1,114 @@
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, X, BookOpen } from "lucide-react";
+
+const links = [
+  { href: "/",          label: "Home" },
+  { href: "/features",  label: "Features" },
+  { href: "/docs",      label: "Docs" },
+  { href: "/issues",    label: "Issues Hub" },
+  { href: "/roadmap",   label: "Roadmap" },
+  { href: "/resources", label: "Resources" },
+  { href: "/standards", label: "Standards" },
+];
+
+export default function Navbar() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  return (
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-[#0F0F1A]/90 backdrop-blur-xl border-b border-white/10 shadow-card" : "bg-transparent"}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <img src="/logo.png" alt="Campus Dive Logo" className="h-8 w-auto object-contain rounded" />
+            <span className="font-black text-lg tracking-tight">
+              <span className="gradient-text">Campus Dive</span>
+              <span className="text-ink-muted text-sm font-medium ml-1">v2</span>
+            </span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {links.map((l) => {
+              const active = pathname === l.href;
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    active
+                      ? "bg-primary/20 text-primary-light border border-primary/30"
+                      : "text-ink-muted hover:text-ink hover:bg-white/5"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* CTA + hamburger */}
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/bbit046j2024-bot/campus-dive-v2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex btn-outline text-sm py-2 px-4"
+            >
+              <BookOpen size={14} /> GitHub
+            </a>
+            <button
+              className="lg:hidden p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-white/5 transition-colors"
+              onClick={() => setOpen(!open)}
+              aria-label="Toggle menu"
+            >
+              {open ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="lg:hidden bg-[#0F0F1A]/95 backdrop-blur-xl border-b border-white/10">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
+            {links.map((l) => {
+              const active = pathname === l.href;
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    active ? "bg-primary/20 text-primary-light" : "text-ink-muted hover:text-ink hover:bg-white/5"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
+            <a
+              href="https://github.com/bbit046j2024-bot/campus-dive-v2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 btn-outline text-sm py-2 text-center"
+            >
+              View on GitHub
+            </a>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
