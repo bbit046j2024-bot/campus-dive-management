@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, BookOpen } from "lucide-react";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 
-const links = [
-  { href: "/",          label: "Home" },
+const publicLinks: { href: string; label: string }[] = [];
+
+const internalLinks = [
   { href: "/features",  label: "Features" },
   { href: "/docs",      label: "Docs" },
   { href: "/issues",    label: "Issues Hub" },
@@ -19,6 +20,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { isSignedIn } = useAuth();
+  const logoHref = isSignedIn ? "/dashboard" : "/";
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -31,7 +34,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
+          <Link href={logoHref} className="flex items-center gap-2.5 group">
             <img src="/logo.png" alt="Campus Dive Logo" className="h-8 w-auto object-contain rounded" />
             <span className="font-black text-lg tracking-tight">
               <span className="gradient-text">Campus Dive</span>
@@ -41,7 +44,7 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {links.map((l) => {
+            {publicLinks.map((l) => {
               const active = pathname === l.href;
               return (
                 <Link
@@ -57,6 +60,24 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <SignedIn>
+              {internalLinks.map((l) => {
+                const active = pathname === l.href;
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      active
+                        ? "bg-primary/20 text-primary-light border border-primary/30"
+                        : "text-ink-muted hover:text-ink hover:bg-white/5"
+                    }`}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
+            </SignedIn>
           </nav>
 
           {/* CTA + hamburger */}
@@ -72,16 +93,12 @@ export default function Navbar() {
 
             <div className="flex items-center gap-2">
               <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="btn-outline text-sm py-2 px-4 cursor-pointer">
-                    Sign In
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="btn-primary text-sm py-2 px-4 rounded-xl cursor-pointer">
-                    Sign Up
-                  </button>
-                </SignUpButton>
+                <Link href="/sign-in" className="btn-outline text-sm py-2 px-4 cursor-pointer">
+                  Sign In
+                </Link>
+                <Link href="/sign-up" className="btn-primary text-sm py-2 px-4 rounded-xl cursor-pointer">
+                  Join Now
+                </Link>
               </SignedOut>
               <SignedIn>
                 <UserButton afterSignOutUrl="/" />
@@ -103,7 +120,7 @@ export default function Navbar() {
       {open && (
         <div className="lg:hidden bg-[#0F0F1A]/95 backdrop-blur-xl border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
-            {links.map((l) => {
+            {publicLinks.map((l) => {
               const active = pathname === l.href;
               return (
                 <Link
@@ -118,18 +135,39 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <SignedIn>
+              {internalLinks.map((l) => {
+                const active = pathname === l.href;
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      active ? "bg-primary/20 text-primary-light" : "text-ink-muted hover:text-ink hover:bg-white/5"
+                    }`}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
+            </SignedIn>
             <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-white/10">
               <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="w-full btn-outline text-sm py-2 px-4 justify-center cursor-pointer">
-                    Sign In
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="w-full btn-primary text-sm py-2 px-4 rounded-xl justify-center cursor-pointer">
-                    Sign Up
-                  </button>
-                </SignUpButton>
+                <Link
+                  href="/sign-in"
+                  onClick={() => setOpen(false)}
+                  className="w-full btn-outline text-sm py-2 px-4 justify-center cursor-pointer text-center"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/sign-up"
+                  onClick={() => setOpen(false)}
+                  className="w-full btn-primary text-sm py-2 px-4 rounded-xl justify-center cursor-pointer text-center"
+                >
+                  Join Now
+                </Link>
               </SignedOut>
               <SignedIn>
                 <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl">
